@@ -48,14 +48,14 @@ def convertTextureFile(sourceFilename, destinationDirectory, basename = None):
 	elif sourceFilename.lower().endswith('.dds'):
 		open(destinationFilename, 'wb').write(open(sourceFilename, 'rb').read())
 	else:
-		os.popen("convert %s -format dds -define dds:compression=dxt5 %s" % (shlex.quote(sourceFilename), shlex.quote(destinationFilename))).read()
+		os.popen("magick convert %s -format dds -define dds:compression=dxt5 %s" % (shlex.quote(sourceFilename), shlex.quote(destinationFilename))).read()
 	
-	identifyData = os.popen("identify -verbose %s" % shlex.quote(destinationFilename)).read()
+	identifyData = os.popen("magick identify -verbose %s" % shlex.quote(destinationFilename)).read()
 	
 	if "Compression: BC7" in identifyData:
 		tempDxt5Filename = os.path.join(destinationDirectory, "%s_temp_dxt5.dds" % destinationName)
 		
-		os.popen("convert %s -format dds -define dds:compression=dxt5 %s" % (shlex.quote(destinationFilename), shlex.quote(tempDxt5Filename))).read()
+		os.popen("magick convert %s -format dds -define dds:compression=dxt5 %s" % (shlex.quote(destinationFilename), shlex.quote(tempDxt5Filename))).read()
 		os.remove(destinationFilename)
 		os.rename(tempDxt5Filename, destinationFilename)
 	
