@@ -1,5 +1,6 @@
 import base64
 import os
+import struct
 import sys
 from xml.etree import ElementTree
 
@@ -57,33 +58,16 @@ def convertGlovesFolder(sourceDirectory, destinationDirectory, commonDestination
 	(materialFile, fmdlMeshMaterialNames) = material.buildMaterials(fmdls, destinationDirectory, commonDestinationDirectory)
 	open(os.path.join(destinationDirectory, "materials.mtl"), 'wb').write(materialFile)
 	
-	configElement = ElementTree.Element("config")
 	if gloveLFmdlFile is not None:
 		modelFile = fmdl2model.convertFmdl(gloveLFmdlFile, fmdlMeshMaterialNames)
 		fmdl2model.saveModel(modelFile, os.path.join(destinationDirectory, "glove_l.model"))
-		
-		modelElement = ElementTree.Element("model", {
-			"level": "0",
-			"type": "gloveL",
-			"path": "./glove_l.model",
-			"material": "./materials.mtl",
-		})
-		configElement.append(modelElement)
 	if gloveRFmdlFile is not None:
 		modelFile = fmdl2model.convertFmdl(gloveRFmdlFile, fmdlMeshMaterialNames)
 		fmdl2model.saveModel(modelFile, os.path.join(destinationDirectory, "glove_r.model"))
-		
-		modelElement = ElementTree.Element("model", {
-			"level": "0",
-			"type": "gloveR",
-			"path": "./glove_r.model",
-			"material": "./materials.mtl",
-		})
-		configElement.append(modelElement)
-	
-	ElementTree.indent(configElement, "\t")
-	configFile = ElementTree.tostring(configElement, encoding = 'utf-8')
-	open(os.path.join(destinationDirectory, 'glove.xml'), 'wb').write(configFile)
+
+def faceDiffFileIsEmpty(faceDiffBin):
+	(xScale, yScale, zScale) = struct.unpack('< 3f', faceDiffBin[8:20])
+	return xScale < 0.1 and yScale < 0.1 and zScale < 0.1
 
 def convertFaceFolder(sourceDirectories, destinationDirectory, commonDestinationDirectory):
 	faceDiffBinFilename = None
@@ -128,8 +112,6 @@ def convertFaceFolder(sourceDirectories, destinationDirectory, commonDestination
 	(materialFile, fmdlMeshMaterialNames) = material.buildMaterials(fmdls, destinationDirectory, commonDestinationDirectory)
 	open(os.path.join(destinationDirectory, 'materials.mtl'), 'wb').write(materialFile)
 	
-	configElement = ElementTree.Element("config")
-	faceNeckPresent = False
 	for (filename, containingDirectory, fmdlFile) in fmdls:
 		baseName = os.path.basename(filename)[:-5].lower()
 		
@@ -155,9 +137,6 @@ def convertFaceFolder(sourceDirectories, destinationDirectory, commonDestination
 			modelType = 'parts'
 			modelSubtype = baseName
 		
-		if modelType == 'face_neck':
-			faceNeckPresent = True
-		
 		suffixIndex = 0
 		while True:
 			if suffixIndex == 0:
@@ -180,38 +159,11 @@ def convertFaceFolder(sourceDirectories, destinationDirectory, commonDestination
 		
 		modelFile = fmdl2model.convertFmdl(fmdlFile, fmdlMeshMaterialNames)
 		fmdl2model.saveModel(modelFile, modelPath)
-		
-		modelElement = ElementTree.Element("model", {
-			"level": "0",
-			"type": modelType,
-			"path": "./%s" % modelFilename.replace("win32.model", "*.model"),
-			"material": "./materials.mtl",
-		})
-		configElement.append(modelElement)
-	
-	if not faceNeckPresent:
-		open(os.path.join(destinationDirectory, "oral_dummy_win32.model"), 'wb').write(
-			open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "dummy.model"), 'rb').read()
-		)
-		modelElement = ElementTree.Element("model", {
-			"level": "0",
-			"type": "face_neck",
-			"path": "./oral_dummy_*.model",
-			"material": "./materials.mtl",
-		})
-		configElement.append(modelElement)
-	
-	ElementTree.indent(configElement, "\t")
 	
 	if faceDiffBinFilename is not None:
 		faceDiffBin = open(faceDiffBinFilename, 'rb').read()
-		faceDiffElement = ElementTree.Element("dif")
-		faceDiffElement.text = "\n%s\n" % str(base64.b64encode(faceDiffBin), 'utf-8')
-		faceDiffElement.tail = "\n"
-		configElement.append(faceDiffElement)
-	
-	configFile = ElementTree.tostring(configElement, encoding = 'utf-8')
-	open(os.path.join(destinationDirectory, 'face.xml'), 'wb').write(configFile)
+		if not faceDiffFileIsEmpty(faceDiffBin):
+			open(os.path.join(destinationDirectory, "face_diff.bin"), 'wb').write(faceDiffBin)
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
