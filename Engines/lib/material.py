@@ -1,6 +1,6 @@
 import os
 import re
-import shlex
+import subprocess
 from xml.etree import ElementTree
 from PIL import Image
 
@@ -33,6 +33,10 @@ class ModelMaterial:
 	def __hash__(self):
 		return id(self)
 
+def run(command):
+	result = subprocess.run(command, capture_output = True, text = True)
+	return result.stdout
+
 def convertTextureFile(sourceFilename, destinationDirectory, basename = None):
 	if basename is None:
 		basename = os.path.basename(sourceFilename)
@@ -48,14 +52,14 @@ def convertTextureFile(sourceFilename, destinationDirectory, basename = None):
 	elif sourceFilename.lower().endswith('.dds'):
 		open(destinationFilename, 'wb').write(open(sourceFilename, 'rb').read())
 	else:
-		os.popen("magick convert %s -format dds -define dds:compression=dxt5 %s" % (shlex.quote(sourceFilename), shlex.quote(destinationFilename))).read()
+		run(["magick", "convert", sourceFilename, "-format", "dds", "-define", "dds:compression=dxt5", destinationFilename])
 	
-	identifyData = os.popen("magick identify -verbose %s" % shlex.quote(destinationFilename)).read()
+	identifyData = run(["magick", "identify", "-verbose", destinationFilename])
 	
 	if "Compression: BC7" in identifyData:
 		tempDxt5Filename = os.path.join(destinationDirectory, "%s_temp_dxt5.dds" % destinationName)
 		
-		os.popen("magick convert %s -format dds -define dds:compression=dxt5 %s" % (shlex.quote(destinationFilename), shlex.quote(tempDxt5Filename))).read()
+		run(["magick", "convert", destinationFilename, "-format", "dds", "-define", "dds:compression=dxt5", tempDxt5Filename])
 		os.remove(destinationFilename)
 		os.rename(tempDxt5Filename, destinationFilename)
 	
