@@ -207,14 +207,20 @@ def convertPlayer(sourceDirectory, destinationDirectory, relativePlayerId, boots
 		
 		if sourceBootDirectory is not None:
 			bootsId = bootsGlovesBaseId + relativePlayerId
+			bootsDirectoryName = "k%04i" % bootsId
 			bootsDirectoryTitle = os.path.basename(sourceBootDirectory)[5:].strip(" -_")
-			destinationBootsDirectory = mkdir(mkdir(destinationDirectory, "Boots"), "k%04i - %s" % (bootsId, bootsDirectoryTitle))
+			if len(bootsDirectoryTitle) > 0:
+				bootsDirectoryName += " - %s" % bootsDirectoryTitle
+			destinationBootsDirectory = mkdir(mkdir(destinationDirectory, "Boots"), bootsDirectoryName)
 			convertBootsFolder(sourceBootDirectory, destinationBootsDirectory, commonDirectory)
 		
 		if sourceGloveDirectory is not None:
 			glovesId = bootsGlovesBaseId + relativePlayerId
+			gloveDirectoryName = "g%04i" % glovesId
 			gloveDirectoryTitle = os.path.basename(sourceGloveDirectory)[5:].strip(" -_")
-			destinationGlovesDirectory = mkdir(mkdir(destinationDirectory, "Gloves"), "g%04i - %s" % (glovesId, gloveDirectoryTitle))
+			if len(gloveDirectoryTitle) > 0:
+				gloveDirectoryName += " - %s" % gloveDirectoryTitle
+			destinationGlovesDirectory = mkdir(mkdir(destinationDirectory, "Gloves"), gloveDirectoryName)
 			convertGlovesFolder(sourceGloveDirectory, destinationGlovesDirectory, commonDirectory)
 		
 		hasFaceModel = False
