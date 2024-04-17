@@ -14,21 +14,20 @@ from lib.util import ijoin
 def dependency_check():
 	# Prepare a list of dependencies
 	dependencies = [
-		"math",
-		"numpy",
-		"struct",
-		"hashlib",
-		"PIL",
-		"traceback_with_variables",
+		("numpy", "numpy"),
+		("struct", "struct"),
+		("hashlib", "hashlib"),
+		("PIL", "pillow"),
+		("traceback_with_variables", "traceback-with-variables"),
 	]
 	
 	try:
-		for dependency in dependencies:
-			importlib.import_module(dependency)
+		for (importName, packageName) in dependencies:
+			importlib.import_module(importName)
 	except ImportError:
 		print("- The following new dependencies were not found:")
 		# List the missing dependencies, one per line
-		missing_dependencies = [dependency.replace("_", "-") for dependency in dependencies if not importlib.util.find_spec(dependency)]
+		missing_dependencies = [packageName for (importName, packageName) in dependencies if not importlib.util.find_spec(importName)]
 		print("-", "\n- ".join(missing_dependencies))
 		print("-")
 		
