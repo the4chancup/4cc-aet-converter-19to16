@@ -152,7 +152,7 @@ def convertFaceFolder(sourceDirectories, destinationDirectory, commonDestination
 			
 			typeComponent = modelType.replace("_", "").lower()
 			
-			modelFilename = "oral_%s%s%s_win32.model" % (typeComponent, subtypeComponent, suffixComponent)
+			modelFilename = "%s%s%s.model" % (typeComponent, subtypeComponent, suffixComponent)
 			modelPath = os.path.join(destinationDirectory, modelFilename)
 			if not os.path.exists(modelPath):
 				break
