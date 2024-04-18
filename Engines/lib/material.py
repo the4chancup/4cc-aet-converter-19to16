@@ -376,7 +376,7 @@ def buildMetalMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, co
 		},
 	)
 
-def buildBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory):
+def buildOpaqueBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory):
 	return ModelMaterial(
 		"Basic_C",
 		{
@@ -419,6 +419,19 @@ def buildTransparentBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDir
 			"blendmode": 0,
 		},
 	)
+
+def buildBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory, baseTextureRealFilename):
+	if 'has-antiblur-meshes' in mesh.extensionHeaders:
+		transparent = False
+	elif baseTextureRealFilename is None:
+		transparent = False
+	else:
+		transparent = textureUsesAlphaBlending(baseTextureRealFilename)
+	
+	if transparent:
+		return buildTransparentBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory)
+	else:
+		return buildOpaqueBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory)
 
 def buildConstantMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory, baseTextureRealFilename):
 	srgb = "srgb" in mesh.materialInstance.shader or "forward" not in mesh.materialInstance.shader
@@ -479,9 +492,9 @@ def buildMaterial(mesh, fmdlFilename, sourceDirectory, faceDirectory, commonDire
 		# TODO: Build fancier glass material if this ever comes up
 		return buildTransparentBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory)
 	if "hair" in shader:
-		return buildTransparentBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory)
+		return buildBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory, baseTextureRealFilename)
 	if "3ddf" in shader or "blin" in shader:
-		return buildBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory)
+		return buildOpaqueBlinMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory)
 	if "constant" in shader or "lambert" in shader:
 		return buildConstantMaterial(mesh, baseTexturePath, sourceDirectory, faceDirectory, commonDirectory, baseTextureRealFilename)
 	if "3dfw" in shader:
