@@ -296,7 +296,7 @@ def convertKitTextureFile(kitTextureFile, destinationDirectory):
 		name = name.replace("_srm", "_mask")
 		maskImage = Image.new('RGBA', (4, 4), (150, 130, 0, 255))
 		maskImageFilename = os.path.join(destinationDirectory, "%s.png" % name)
-		maskImage.save(roughnessImageFilename)
+		maskImage.save(maskImageFilename)
 		convertTextureFile(maskImageFilename, destinationDirectory)
 		os.remove(maskImageFilename)
 	else:
