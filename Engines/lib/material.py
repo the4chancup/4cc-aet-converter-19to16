@@ -159,7 +159,7 @@ def convertTexture(sourceDirectory, filename, putInCommonDirectory, faceDirector
 		else:
 			finalTextureFilename = "%s%s.dds" % (list(tempFilenames.keys())[0], suffix)
 		
-		return (finalTextureFilename, prefix + "%s%s.dds" % (name, suffix))
+		return (os.path.join(destinationDirectory, finalTextureFilename), prefix + "%s%s.dds" % (name, suffix))
 	else:
 		sourceTexture = findSourceTexture(name)
 		if sourceTexture is None:
