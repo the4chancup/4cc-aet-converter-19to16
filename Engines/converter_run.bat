@@ -8,6 +8,9 @@ cd /D "%~dp0\.."
 REM - Check if python is installed and was added to the PATH
 call .\Engines\python_check
 
+REM - Check if python is installed and was added to the PATH
+call .\Engines\imagemagick_check
+
 REM - Set the running type from the first argument this script was called with
 set running_type=%1
 
