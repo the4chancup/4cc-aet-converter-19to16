@@ -128,9 +128,11 @@ def convertFaceFolder(sourceDirectories, destinationDirectory, commonDestination
 			modelType = 'parts'
 			modelSubtype = 'body'
 		elif 'glove_l' in baseName:
+			baseName = baseName.replace("glove_l", "gloveL")
 			modelType = 'gloveL'
 			modelSubtype = None
 		elif 'glove_r' in baseName:
+			baseName = baseName.replace("glove_r", "gloveR")
 			modelType = 'gloveR'
 			modelSubtype = None
 		else:
